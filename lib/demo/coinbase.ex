@@ -7,12 +7,7 @@ defmodule Demo.Coinbase do
 
   def products do
     with {:ok, response} <- get("/products/") |> parse_response() do
-      result_list =
-        response
-        |> Enum.reduce([], fn product, acc ->
-          fetch_products_tickers(product)
-          |> parse_products_tickers(acc)
-        end)
+      result_list = tickers_list(response)
 
       {:ok, result_list}
     else
@@ -26,29 +21,27 @@ defmodule Demo.Coinbase do
     |> aggregate_id(id)
   end
 
-  defp aggregate_id({:ok, response}, id) do
-    {:ok, Map.merge(response, %{"id" => id})}
+  defp tickers_list(products) do
+    Enum.reduce(products, [], fn product, list ->
+      fetch_products_tickers(product)
+      |> parse_products_tickers(list)
+    end)
   end
 
-  defp aggregate_id(error, _) do
-    error
+  defp aggregate_id({:ok, ticker}, id) do
+    {:ok, Map.merge(ticker, %{"id" => id})}
   end
 
-  defp parse_products_tickers({:ok, response}, acc) do
-    acc ++ [response]
-  end
+  defp aggregate_id(error, _), do: error
 
-  defp parse_products_tickers(_, acc) do
-    acc
-  end
+  defp parse_products_tickers({:ok, ticker}, list),
+    do: list ++ [ticker]
 
-  defp fetch_products_tickers(%{"id" => id}) do
-    product(id)
-  end
+  defp parse_products_tickers(_, list), do: list
 
-  defp fetch_products_tickers(error) do
-    error
-  end
+  defp fetch_products_tickers(%{"id" => id}), do: product(id)
+
+  defp fetch_products_tickers(error), do: error
 
   defp parse_response({:ok, %Tesla.Env{status: 200, body: body}}),
     do: {:ok, body}
