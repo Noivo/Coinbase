@@ -1,0 +1,30 @@
+ <h1>Conversions: </h1>
+<button phx-click="new">Force Update</button>
+<table>
+    <thead>
+    <tr>
+        <th>Conversion</th>
+        <th>Price</th>
+        <th>Size</th>
+        <th>Bid</th>
+        <th>Ask</th>
+        <th>Volume</th>
+        <th>Time</th>
+    </tr>
+    </thead>
+    <tbody id ="conversions">
+
+    <%= for item <- @conversions do %>
+    <tr id="conversion-<%= item["time"]%>-<%= item["id"]%>">
+        <td><%= item["id"] %></td>
+        <td><%= item["price"] %></td>
+        <td><%= item["size"] %></td>
+        <td><%= item["bid"] %></td>
+        <td><%= item["ask"] %></td>
+        <td><%= item["volume"] %></td>
+        <td><%= item["time"] %></td>
+    </tr>
+    <% end %>
+
+    </tbody>
+</table>

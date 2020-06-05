@@ -28,8 +28,9 @@ defmodule Demo.Tracker do
     {:ok, state}
   end
 
-  def handle_call(:history, _, state) do
-    {:reply, state, state}
+  def handle_call(:history, _, [head | _] = state) do
+
+    {:reply, head, state}
   end
 
   def handle_call({:coin_ticker, ticker}, _, state) do
