@@ -14,11 +14,13 @@ defmodule DemoWeb.TrackerLive do
   end
 
   def handle_event("new", _, socket) do
-    head = Tracker.history()
-    socket = assign(socket, :conversions, head)
+    conversion_rates = Tracker.last_conversion_rates()
+    socket = assign(socket, :conversions, conversion_rates)
     {:noreply, socket}
   end
 
+  @spec handle_info({:history, any}, Phoenix.LiveView.Socket.t()) ::
+          {:noreply, Phoenix.LiveView.Socket.t()}
   def handle_info({:history, result}, socket) do
     socket = assign(socket, :conversions, result)
     {:noreply, socket}

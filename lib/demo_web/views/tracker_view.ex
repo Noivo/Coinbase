@@ -1,3 +1,3 @@
 defmodule DemoWeb.TrackerView do
-    use DemoWeb, :view
-  end
+  use DemoWeb, :view
+end

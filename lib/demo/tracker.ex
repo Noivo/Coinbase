@@ -10,8 +10,8 @@ defmodule Demo.Tracker do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def history do
-    GenServer.call(__MODULE__, :history, 25000)
+  def last_conversion_rates do
+    GenServer.call(__MODULE__, :last_conversion_rates, 25000)
   end
 
   def coin_ticker(ticker) do
@@ -28,8 +28,7 @@ defmodule Demo.Tracker do
     {:ok, state}
   end
 
-  def handle_call(:history, _, [head | _] = state) do
-
+  def handle_call(:last_conversion_rates, _, [head | _] = state) do
     {:reply, head, state}
   end
 
@@ -48,13 +47,14 @@ defmodule Demo.Tracker do
       with {:ok, result} <- Coinbase.products() do
         [result] ++ state
       else
-        error -> 
-          IO.inspect(error)  
-          state        
+        error ->
+          IO.inspect(error)
+          state
       end
+
     head = List.first(state)
 
-    broadcast({:ok, head}, :history) 
+    broadcast({:ok, head}, :history)
     Process.send_after(self(), :work, 5000)
     {:noreply, state}
   end
