@@ -19,9 +19,9 @@ defmodule DemoWeb.TrackerLive do
     {:noreply, socket}
   end
 
-  @spec handle_info({:history, any}, Phoenix.LiveView.Socket.t()) ::
+  @spec handle_info({:last_conversion_rates, any}, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
-  def handle_info({:history, result}, socket) do
+  def handle_info({:last_conversion_rates, result}, socket) do
     socket = assign(socket, :conversions, result)
     {:noreply, socket}
   end
