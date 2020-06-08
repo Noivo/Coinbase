@@ -25,18 +25,20 @@ defmodule Demo.Tracker do
   end
 
   def handle_info(:work, state) do
-    state =
-      with {:ok, result} <- Coinbase.products() do
-        [result] ++ state
-      else
-        _ -> state
-      end
-
-    head = List.first(state)
+    history = update_history(state)
+    head = List.first(history)
 
     broadcast({:ok, head}, :history)
     Process.send_after(self(), :work, 5000)
     {:noreply, state}
+  end
+
+  def update_history(state) do
+    with {:ok, result} <- Coinbase.products() do
+      [result | state]
+    else
+      _ -> state
+    end
   end
 
   def subscribe do
