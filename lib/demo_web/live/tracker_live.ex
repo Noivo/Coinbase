@@ -1,5 +1,6 @@
 defmodule DemoWeb.TrackerLive do
   use DemoWeb, :live_view
+  alias DemoWeb.TrackerView
   alias Demo.Tracker
 
   def mount(_params, _session, socket) do
@@ -9,47 +10,18 @@ defmodule DemoWeb.TrackerLive do
   end
 
   def render(assigns) do
-    ~L"""
-    <h1>Conversions: </h1>
-    <button phx-click="new">Force Update</button>
-    <table>
-      <thead>
-        <tr>
-          <th>Conversion</th>
-          <th>Price</th>
-          <th>Size</th>
-          <th>Bid</th>
-          <th>Ask</th>
-          <th>Volume</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody id ="conversions">
-
-      <%= for item <- @conversions do %>
-        <tr id="conversion-<%= item["time"]%>-<%= item["id"]%>">
-          <td><%= item["id"] %></td>
-          <td><%= item["price"] %></td>
-          <td><%= item["size"] %></td>
-          <td><%= item["bid"] %></td>
-          <td><%= item["ask"] %></td>
-          <td><%= item["volume"] %></td>
-          <td><%= item["time"] %></td>
-        </tr>
-      <% end %>
-
-      </tbody>
-     </table>
-    """
+    TrackerView.render("tracker_live.html", assigns)
   end
 
   def handle_event("new", _, socket) do
-    head = List.first(Tracker.history())
-    socket = assign(socket, :conversions, head)
+    conversion_rates = Tracker.last_conversion_rates()
+    socket = assign(socket, :conversions, conversion_rates)
     {:noreply, socket}
   end
 
-  def handle_info({:history, result}, socket) do
+  @spec handle_info({:last_conversion_rates, any}, Phoenix.LiveView.Socket.t()) ::
+          {:noreply, Phoenix.LiveView.Socket.t()}
+  def handle_info({:last_conversion_rates, result}, socket) do
     socket = assign(socket, :conversions, result)
     {:noreply, socket}
   end
