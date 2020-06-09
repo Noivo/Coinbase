@@ -6,8 +6,18 @@ defmodule Demo.Coinbase do
   plug(Tesla.Middleware.JSON)
 
   def products do
-    with {:ok, response} <- get("/products/") |> parse_response() do
-      result_list = tickers_list(response)
+    get("/products/")
+    |> parse_response()
+  end
+
+  def product(id) do
+    get("products/" <> id <> "/ticker")
+    |> parse_response()
+  end
+
+  def products_ticker do
+    with {:ok, response} <- products() do
+      result_list = products_ticker_list(response)
 
       {:ok, result_list}
     else
@@ -15,17 +25,21 @@ defmodule Demo.Coinbase do
     end
   end
 
-  def product(id) do
-    get("products/" <> id <> "/ticker")
-    |> parse_response()
-    |> add_id(id)
+  defp products_ticker_list(products) do
+    Enum.reduce(products, [], &product_ticker/2)
   end
 
-  defp tickers_list(products) do
-    Enum.reduce(products, [], fn %{"id" => id}, list ->
-      product(id)
-      |> parse_products_tickers(list)
-    end)
+  defp product_ticker(%{"id" => id}, list) do
+    with {:ok, product} <- product_with_id(id) do
+      [product | list]
+    else
+      _ -> list
+    end
+  end
+
+  def product_with_id(id) do
+    product(id)
+    |> add_id(id)
   end
 
   defp add_id({:ok, ticker}, id) do
@@ -33,11 +47,6 @@ defmodule Demo.Coinbase do
   end
 
   defp add_id(error, _), do: error
-
-  defp parse_products_tickers({:ok, ticker}, list),
-    do: [ticker | list]
-
-  defp parse_products_tickers(_, list), do: list
 
   defp parse_response({:ok, %Tesla.Env{status: 200, body: body}}),
     do: {:ok, body}
