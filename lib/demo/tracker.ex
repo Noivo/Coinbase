@@ -29,7 +29,7 @@ defmodule Demo.Tracker do
 
     [head | _] = state
 
-    broadcast({:ok, head}, :last_conversion_rates)
+    broadcast({:ok, head}, :new_rates)
     Process.send_after(self(), :work, 5000)
     {:noreply, state}
   end
