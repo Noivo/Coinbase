@@ -35,7 +35,7 @@ defmodule Demo.Tracker do
   end
 
   def update_state(state) do
-    with {:ok, result} <- Coinbase.products() do
+    with {:ok, result} <- Coinbase.products_ticker() do
       [result | state]
     else
       _ -> state
